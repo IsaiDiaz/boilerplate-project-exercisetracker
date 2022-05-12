@@ -52,6 +52,7 @@ app.post('/api/users/:_id/exercises', function (req, res){
   User.findById(req.params._id, function(err, user){
     if(err) console.log(err);
     let date = new Date (req.body.date);
+    date.setDate(date.getDate() + 1);
     if(date.toDateString() == "Invalid Date"){
       date = new Date();
     }
@@ -65,14 +66,18 @@ app.post('/api/users/:_id/exercises', function (req, res){
 
 app.get('/api/users/:_id/logs', function(req, res){
   User.findById(req.params._id, function(err, user){
-    if(err) console.log(err);
-    Exercise.find({id: req.params._id}, function(err, exer){
-      if(err) console.log(err); 
-        let arrayExercises = exercisesObtainer(req.query.from, req.query.to, req.query.limit, exer);
-        let fromDate = new Date(req.query.from).toDateString();
-        let toDate = new Date(req.query.to).toDateString();
-        res.json({"_id": req.params._id,"username": user.username, "from": fromDate == "Invalid Date" ? undefined : fromDate, "to": toDate == "Invalid Date" ? undefined: toDate ,"count": arrayExercises.length, "log": arrayExercises});
-    })
+    if(err) res.json({error: "error"});
+    if(user){
+      Exercise.find({id: req.params._id}, function(err, exer){
+        if(err) console.log(err); 
+          let arrayExercises = exercisesObtainer(req.query.from, req.query.to, req.query.limit, exer);
+          let fromDate = new Date(req.query.from).toDateString();
+          let toDate = new Date(req.query.to).toDateString();
+          res.json({"_id": req.params._id,"username": user.username, "from": fromDate == "Invalid Date" ? undefined : fromDate, "to": toDate == "Invalid Date" ? undefined: toDate ,"count": arrayExercises.length, "log": arrayExercises});
+      })
+    }else{
+      res.json({error: "error"});
+    }
   })  
 });
 
